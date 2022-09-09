@@ -14,10 +14,16 @@
     oci network vcn list --compartment-id $OCI_COMPARTMENT_OCID | jq -r '.[][].id'
   register: vcn_ocid_result
   delegate_to: localhost
+- name: Gather OCI Subnet OCID
+  shell: |
+    oci network subnet list --compartment-id $OCI_COMPARTMENT_OCID | jq -r '.[][].id'
+  register: subnet_ocid_result
+  delegate_to: localhost
 - name: Set Facts
   set_fact:
     compartment_ocid: "{{ lookup('ansible.builtin.env', 'OCI_COMPARTMENT_OCID', default=Undefined) }}"
     vcn_ocid: "{{ vcn_ocid_result.stdout }}"
+    subnet_ocid: "{{ subnet_ocid_result.stdout }}"
   delegate_to: localhost
 - name: DEBUG output
   debug:
@@ -26,3 +32,49 @@
   loop:
     - compartment_ocid
     - vcn_ocid
+    - subnet_ocid
+- name: Configure Environment
+  template:
+    src: templates/myenvironment-oci_ccm.j2
+    dest: /home/{{install_user}}/myenvironment-oci_ccm.yml
+  become: true
+  become_user: "{{ install_user }}"
+- name: Create modules
+  shell: |
+    olcnectl module create --config-file ${HOME}/myenvironment-metallb.yaml
+  become: true
+  become_user: "{{ install_user}}"
+  register: ocne_module_create
+- name: DEBUG output
+  debug:
+    var: ocne_module_create
+  when: (debug_output == true) and (ocne_module_create.rc != 0)
+- name: Validate modules
+  shell: |
+    olcnectl module validate --config-file ${HOME}/myenvironment-metallb.yaml
+  become: true
+  become_user: "{{ install_user}}"
+  register: ocne_module_validate
+- name: DEBUG output
+  debug:
+    var: ocne_module_validate
+  when: debug_output == true
+- name: Install modules
+  shell: |
+    olcnectl module install --config-file ${HOME}/myenvironment-metallb.yaml
+  become: true
+  become_user: "{{ install_user}}"
+  register: ocne_module_install
+- name: DEBUG output
+  debug:
+    var: ocne_module_install
+  when: debug_output == true
+- name: Gather installed modules
+  shell: |
+    olcnectl module instances --config-file ${HOME}/myenvironment-metallb.yaml
+  become: true 
+  become_user: "{{ install_user}}"
+  register: ocne_module_instances
+- name: Show installed modules
+  debug:
+    var: ocne_module_instances
