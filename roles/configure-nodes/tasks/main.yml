@@ -41,7 +41,7 @@
   become_user: "{{ install_user }}"
 - name: Create modules
   shell: |
-    olcnectl module create --config-file ${HOME}/myenvironment-metallb.yaml
+    olcnectl module create --config-file ${HOME}/myenvironment-oci_ccm.yaml
   become: true
   become_user: "{{ install_user}}"
   register: ocne_module_create
@@ -51,7 +51,7 @@
   when: (debug_output == true) and (ocne_module_create.rc != 0)
 - name: Validate modules
   shell: |
-    olcnectl module validate --config-file ${HOME}/myenvironment-metallb.yaml
+    olcnectl module validate --config-file ${HOME}/myenvironment-oci_ccm.yaml
   become: true
   become_user: "{{ install_user}}"
   register: ocne_module_validate
@@ -61,7 +61,7 @@
   when: debug_output == true
 - name: Install modules
   shell: |
-    olcnectl module install --config-file ${HOME}/myenvironment-metallb.yaml
+    olcnectl module install --config-file ${HOME}/myenvironment-oci_ccm.yaml
   become: true
   become_user: "{{ install_user}}"
   register: ocne_module_install
@@ -71,7 +71,7 @@
   when: debug_output == true
 - name: Gather installed modules
   shell: |
-    olcnectl module instances --config-file ${HOME}/myenvironment-metallb.yaml
+    olcnectl module instances --config-file ${HOME}/myenvironment-oci_ccm.yaml
   become: true 
   become_user: "{{ install_user}}"
   register: ocne_module_instances
