@@ -27,6 +27,6 @@ environments:
         oci-ccm-helm-module: myhelm
         oci-use-instance-principals: true
         oci-compartment: {{ compartment_ocid }}
-        oci-vcn:
+        oci-vcn: {{ vcn_ocid }}
         oci-lb-subnet1:
         
