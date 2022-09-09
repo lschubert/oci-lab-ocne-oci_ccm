@@ -1,0 +1,28 @@
+---
+- name: Configure the firewall 
+  firewalld:
+    port: "{{ item }}"
+    zone: public
+    permanent: yes
+    immediate: yes
+    state: enabled
+  become: true  
+  loop:
+    - 10256/tcp
+- name: Gather OCI VCN OCID
+  shell: |
+    oci network vcn list --compartment-id $OCI_COMPARTMENT_OCID | jq -r '.[][].id'
+  register: vcn_ocid_result
+  delegate_to: localhost
+- name: Set Facts
+  set_fact:
+    compartment_ocid: "{{ lookup('ansible.builtin.env', 'OCI_COMPARTMENT_OCID', default=Undefined) }}"
+    vcn_ocid: "{{ vcn_ocid_result.stdout }}"
+  delegate_to: localhost
+- name: DEBUG output
+  debug:
+    var: compartment_ocid
+  when: debug_output == true
+  loop:
+    - compartment_ocid
+    - vcn_ocid

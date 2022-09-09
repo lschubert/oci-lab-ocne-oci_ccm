@@ -1,5 +1,5 @@
 ---
-ocne-node01: 130.61.78.100
+ocne_node01: 130.61.78.100
 
 # ocne_module_metallb: true: enables metallb within the ocne cluster
 ocne_module_metallb: true
